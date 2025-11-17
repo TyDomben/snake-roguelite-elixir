@@ -1,0 +1,42 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* Custom styles for the Snake game */
+.game-cell {
+  @apply border border-gray-700;
+}
+
+.snake-head {
+  @apply bg-green-500;
+}
+
+.snake-body {
+  @apply bg-green-600;
+}
+
+.food {
+  @apply bg-red-500;
+  animation: pulse 0.5s infinite alternate;
+}
+
+@keyframes pulse {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0.7;
+  }
+}
+
+.upgrade-card {
+  @apply bg-gray-800 border-2 border-gray-600 rounded-lg p-4 cursor-pointer transition-all;
+}
+
+.upgrade-card:hover {
+  @apply border-blue-500 transform scale-105;
+}
+
+.active-upgrade {
+  @apply bg-blue-900 border-blue-500 rounded px-2 py-1 text-xs;
+}
