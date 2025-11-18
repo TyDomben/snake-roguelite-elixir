@@ -30,7 +30,25 @@ A modern take on the classic Snake game with roguelite mechanics, built with Eli
 - **Phoenix Framework**: Web framework for Elixir
 - **Phoenix LiveView**: Real-time server-rendered HTML (no JavaScript framework needed!)
 - **GenServer**: OTP pattern for managing game state
+- **ETS**: Erlang Term Storage for high score persistence
 - **Tailwind CSS**: Utility-first CSS framework for styling
+
+## ✨ Production-Ready Features
+
+### Quality Assurance
+- ✅ **Comprehensive Test Suite**: 30+ tests covering game logic, persistence, and UI
+- ✅ **Error Handling**: Graceful handling of invalid inputs and edge cases
+- ✅ **Custom Error Pages**: Themed 404 and 500 pages
+- ✅ **Session Management**: Automatic cleanup of game processes on disconnect
+- ✅ **High Score Persistence**: ETS-based storage survives application restarts
+- ✅ **Type Safety**: Safe atom conversion and input validation
+
+### Developer Experience
+- 📚 **Extensive Documentation**: README, QUICKSTART, TESTING, and CHANGELOG
+- 🧪 **Test Coverage**: All critical paths tested
+- 💬 **Code Comments**: Educational comments throughout for learning
+- 🏗️ **Clean Architecture**: Separation of concerns, proper supervision
+- 🔍 **Logging**: Strategic logging for debugging and monitoring
 
 ## 🏗️ Architecture Highlights
 
@@ -53,6 +71,16 @@ This project demonstrates key Elixir/Phoenix patterns:
 - Keyboard event handling via LiveView events
 - Scheduled tasks for game tick loop
 - Server-side rendering with client-side interactivity
+- Automatic session cleanup on disconnect
+```
+
+### ETS for Persistence
+```elixir
+# lib/snake_roguelite/high_score_manager.ex
+- Fast in-memory storage with ETS
+- High scores persist across game sessions
+- Per-player or global high score tracking
+- Atomic updates for thread safety
 ```
 
 ### Process Supervision
@@ -60,6 +88,7 @@ This project demonstrates key Elixir/Phoenix patterns:
 # lib/snake_roguelite/application.ex
 - Dynamic supervision of game sessions
 - Registry for tracking active games
+- HighScoreManager in supervision tree
 - Fault-tolerant architecture (if a game crashes, only that session is affected)
 ```
 
@@ -103,6 +132,21 @@ For interactive development with Elixir's REPL:
 iex -S mix phx.server
 ```
 
+### Running Tests
+
+```bash
+# Run all tests
+mix test
+
+# Run with coverage
+mix test --cover
+
+# Run specific test file
+mix test test/snake_roguelite/game_server_test.exs
+```
+
+For more details, see [TESTING.md](TESTING.md)
+
 ## 🎓 Learning Resources
 
 This project is designed as a learning tool. Key concepts demonstrated:
@@ -138,21 +182,24 @@ This project is designed as a learning tool. Key concepts demonstrated:
 snake-roguelite-elixir/
 ├── lib/
 │   ├── snake_roguelite/
-│   │   ├── application.ex          # OTP application and supervision tree
-│   │   ├── game_server.ex          # GenServer for game logic
-│   │   └── game_registry.ex        # Registry for game sessions
+│   │   ├── application.ex           # OTP application and supervision tree
+│   │   ├── game_server.ex           # GenServer for game logic
+│   │   ├── game_registry.ex         # Registry for game sessions
+│   │   └── high_score_manager.ex    # ETS-based high score persistence
 │   └── snake_roguelite_web/
 │       ├── components/
-│       │   ├── core_components.ex  # Reusable UI components
-│       │   └── layouts/            # Page layouts
+│       │   ├── core_components.ex   # Reusable UI components
+│       │   └── layouts/             # Page layouts
 │       ├── controllers/
-│       │   └── error_html.ex       # Error pages
+│       │   ├── error_html.ex        # Error page controller
+│       │   └── error_html/          # Custom error page templates
 │       ├── live/
-│       │   └── game_live.ex        # Main game LiveView
-│       ├── endpoint.ex             # Phoenix endpoint configuration
-│       ├── router.ex               # Route definitions
-│       ├── telemetry.ex            # Application metrics
-│       └── snake_roguelite_web.ex  # Web module definitions
+│       │   └── game_live.ex         # Main game LiveView
+│       ├── endpoint.ex              # Phoenix endpoint configuration
+│       ├── router.ex                # Route definitions
+│       ├── telemetry.ex             # Application metrics
+│       ├── gettext.ex               # Internationalization
+│       └── snake_roguelite_web.ex   # Web module definitions
 ├── assets/
 │   ├── css/
 │   │   └── app.css                 # Tailwind CSS styles
@@ -164,7 +211,21 @@ snake-roguelite-elixir/
 │   ├── dev.exs                     # Development config
 │   ├── prod.exs                    # Production config
 │   └── test.exs                    # Test config
-└── mix.exs                         # Project dependencies
+├── test/
+│   ├── snake_roguelite/
+│   │   ├── game_server_test.exs    # GameServer unit tests
+│   │   └── high_score_manager_test.exs  # High score persistence tests
+│   ├── snake_roguelite_web/
+│   │   └── live/
+│   │       └── game_live_test.exs  # LiveView integration tests
+│   ├── support/
+│   │   └── conn_case.ex            # Test helpers
+│   └── test_helper.exs             # Test configuration
+├── README.md                        # This file
+├── QUICKSTART.md                    # Quick setup guide
+├── TESTING.md                       # Testing guide
+├── CHANGELOG.md                     # Version history and improvements
+└── mix.exs                          # Project dependencies
 ```
 
 ## 🎯 Future Enhancement Ideas

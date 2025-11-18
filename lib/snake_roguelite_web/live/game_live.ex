@@ -20,7 +20,7 @@ defmodule SnakeRogueliteWeb.GameLive do
     session_id = generate_session_id()
 
     # Start a game server for this session
-    {:ok, _pid} = DynamicSupervisor.start_child(
+    {:ok, pid} = DynamicSupervisor.start_child(
       SnakeRoguelite.GameSupervisor,
       {GameServer, session_id}
     )
@@ -35,9 +35,24 @@ defmodule SnakeRogueliteWeb.GameLive do
 
     socket = socket
     |> assign(:session_id, session_id)
+    |> assign(:game_server_pid, pid)
     |> assign(:game_state, game_state)
 
     {:ok, socket}
+  end
+
+  @impl true
+  def terminate(_reason, socket) do
+    # Clean up the game server when the LiveView session ends
+    # This prevents orphaned game processes
+    if socket.assigns[:game_server_pid] do
+      DynamicSupervisor.terminate_child(
+        SnakeRoguelite.GameSupervisor,
+        socket.assigns.game_server_pid
+      )
+    end
+
+    :ok
   end
 
   @impl true
@@ -61,11 +76,22 @@ defmodule SnakeRogueliteWeb.GameLive do
 
   @impl true
   def handle_event("select_upgrade", %{"upgrade-id" => upgrade_id}, socket) do
-    # Convert string ID to atom
-    upgrade_atom = String.to_existing_atom(upgrade_id)
+    # Safely convert string ID to atom
+    # Using try/catch to handle invalid upgrade IDs gracefully
+    upgrade_atom = try do
+      String.to_existing_atom(upgrade_id)
+    rescue
+      ArgumentError ->
+        # If atom doesn't exist, log error and return nil
+        require Logger
+        Logger.warning("Invalid upgrade ID attempted: #{upgrade_id}")
+        nil
+    end
 
-    # Select the upgrade
-    GameServer.select_upgrade(socket.assigns.session_id, upgrade_atom)
+    # Select the upgrade if valid
+    if upgrade_atom do
+      GameServer.select_upgrade(socket.assigns.session_id, upgrade_atom)
+    end
 
     # Get updated state
     game_state = GameServer.get_state(socket.assigns.session_id)

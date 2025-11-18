@@ -12,6 +12,8 @@ defmodule SnakeRoguelite.Application do
       SnakeRogueliteWeb.Telemetry,
       # PubSub system for real-time features
       {Phoenix.PubSub, name: SnakeRoguelite.PubSub},
+      # High score manager for persistent scores
+      SnakeRoguelite.HighScoreManager,
       # Registry for game sessions
       SnakeRoguelite.GameRegistry,
       # Game state supervisor - manages all active game sessions

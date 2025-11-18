@@ -12,6 +12,8 @@ defmodule SnakeRoguelite.GameServer do
   use GenServer
   require Logger
 
+  alias SnakeRoguelite.HighScoreManager
+
   # Client API
 
   @doc """
@@ -174,6 +176,9 @@ defmodule SnakeRoguelite.GameServer do
       {div(grid_size, 2), div(grid_size, 2) + 2}
     ]
 
+    # Get the persistent high score
+    high_score = HighScoreManager.get_high_score()
+
     %{
       # Grid configuration
       grid_size: grid_size,
@@ -194,7 +199,7 @@ defmodule SnakeRoguelite.GameServer do
       score: 0,
       level: 1,
       food_eaten: 0,
-      high_score: 0,
+      high_score: high_score,
 
       # Lives system
       lives: 1,
@@ -243,8 +248,8 @@ defmodule SnakeRoguelite.GameServer do
     # Grow snake: new head, keep all body segments
     new_body = [state.snake.head | state.snake.body]
 
-    # Update high score
-    new_high_score = max(new_score, state.high_score)
+    # Update high score (persists across restarts)
+    new_high_score = HighScoreManager.update_high_score(new_score)
 
     # Check for level up (every 5 food)
     if rem(new_food_eaten, 5) == 0 do
