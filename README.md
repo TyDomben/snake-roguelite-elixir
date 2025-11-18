@@ -22,6 +22,7 @@ A modern take on the classic Snake game with roguelite mechanics, built with Eli
 - **Ghost Mode**: Phase through your own body
 - **Extra Life**: Gain one additional life
 - **Double Points**: Earn 2x points from food
+- **Food Magnet**: Food spawns closer to you (within 1/3 of grid)
 - **Diet Plan**: Shrink by 3 segments for easier maneuvering
 
 ## 🛠️ Tech Stack

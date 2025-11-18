@@ -256,7 +256,7 @@ defmodule SnakeRoguelite.GameServer do
       # Level up! Pause game and offer upgrades
       %{state |
         snake: %{head: new_head, body: new_body},
-        food: spawn_food(state.grid_size, new_head, new_body),
+        food: spawn_food(state.grid_size, new_head, new_body, state.upgrades),
         score: new_score,
         food_eaten: new_food_eaten,
         level: state.level + 1,
@@ -268,7 +268,7 @@ defmodule SnakeRoguelite.GameServer do
       # Normal food consumption
       %{state |
         snake: %{head: new_head, body: new_body},
-        food: spawn_food(state.grid_size, new_head, new_body),
+        food: spawn_food(state.grid_size, new_head, new_body, state.upgrades),
         score: new_score,
         food_eaten: new_food_eaten,
         high_score: new_high_score
@@ -286,7 +286,7 @@ defmodule SnakeRoguelite.GameServer do
     end
   end
 
-  defp spawn_food(grid_size, head, body) do
+  defp spawn_food(grid_size, head, body, upgrades \\ []) do
     # Generate a random position that's not occupied by the snake
     occupied = [head | body]
 
@@ -297,11 +297,39 @@ defmodule SnakeRoguelite.GameServer do
     available_positions = all_positions -- occupied
 
     if length(available_positions) > 0 do
-      Enum.random(available_positions)
+      # If food magnet is active, spawn food closer to the snake
+      if has_upgrade_by_id?(upgrades, :food_magnet) do
+        spawn_food_nearby(head, available_positions, grid_size)
+      else
+        Enum.random(available_positions)
+      end
     else
       # Fallback if somehow the grid is full
       {0, 0}
     end
+  end
+
+  defp spawn_food_nearby(head, available_positions, grid_size) do
+    # Calculate distance from head for all available positions
+    {head_x, head_y} = head
+    max_distance = div(grid_size, 3)  # Food spawns within 1/3 of grid from snake
+
+    # Find positions within the magnetic range
+    nearby_positions = Enum.filter(available_positions, fn {x, y} ->
+      distance = abs(x - head_x) + abs(y - head_y)  # Manhattan distance
+      distance <= max_distance
+    end)
+
+    # If there are nearby positions, pick one; otherwise pick any available
+    if length(nearby_positions) > 0 do
+      Enum.random(nearby_positions)
+    else
+      Enum.random(available_positions)
+    end
+  end
+
+  defp has_upgrade_by_id?(upgrades, upgrade_id) do
+    Enum.any?(upgrades, &(&1.id == upgrade_id))
   end
 
   defp generate_upgrades do
@@ -341,6 +369,13 @@ defmodule SnakeRoguelite.GameServer do
         description: "Earn 2x points from food",
         type: :multiplier,
         value: 2
+      },
+      %{
+        id: :food_magnet,
+        name: "Food Magnet",
+        description: "Food spawns closer to you",
+        type: :ability,
+        value: true
       },
       %{
         id: :shrink,
